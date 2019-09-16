@@ -1,0 +1,88 @@
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index b4e6f9e6204a..17e9d554177f 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -343,6 +343,7 @@
+ 332	common	statx			__x64_sys_statx
+ 333	common	io_pgetevents		__x64_sys_io_pgetevents
+ 334	common	rseq			__x64_sys_rseq
++335     common  s2_encrypt 		__x64_sys_s2_encrypt 
+ # don't use numbers 387 through 423, add new calls after the last
+ # 'common' entry
+ 424	common	pidfd_send_signal	__x64_sys_pidfd_send_signal
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 2bcef4c70183..9857fbb97abd 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -1396,5 +1396,6 @@ static inline unsigned int ksys_personality(unsigned int personality)
+ 
+ 	return old;
+ }
+-
++/* Project 1 */
++asmlinkage long sys_s2_encrypt(char*, unsigned int);
+ #endif
+diff --git a/kernel/Makefile b/kernel/Makefile
+index a8d923b5481b..142f0f274524 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -44,6 +44,9 @@ obj-y += rcu/
+ obj-y += livepatch/
+ obj-y += dma/
+ 
++#Project 1
++obj-y += encrypt.o
++
+ obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+diff --git a/kernel/encrypt.c b/kernel/encrypt.c
+new file mode 100644
+index 000000000000..a8782e6144a9
+--- /dev/null
++++ b/kernel/encrypt.c
+@@ -0,0 +1,23 @@
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/string.h>
++#include <linux/syscalls.h>
++
++/*asmlinkage long sys_s2_encrypt(char* input_string, unsigned int key)*/
++SYSCALL_DEFINE2(s2_encrypt, char*, input_string, unsigned int, key)
++{
++	int i = 0;
++	char* encrypted_string = input_string;
++	if(key < 1 || key > 5)
++	{
++		return EINVAL;
++	}
++	printk(KERN_INFO "Input string: %s\n", input_string);
++	printk(KERN_INFO "Input key: %d\n", key);
++	for(i = 0; i < strlen(input_string); i++)
++	{
++		encrypted_string[i] += key; 
++	}
++	printk(KERN_INFO "Encrypted String: %s\n", encrypted_string);
++	return 0;
++}
+diff --git a/net/socket.c b/net/socket.c
+index 38eec1583f6d..63877fe4cb49 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1715,6 +1715,8 @@ int __sys_accept4(int fd, struct sockaddr __user *upeer_sockaddr,
+ 	struct file *newfile;
+ 	int err, len, newfd, fput_needed;
+ 	struct sockaddr_storage address;
++	printk(KERN_INFO "I found the accept implementation!\n");
++
+ 
+ 	if (flags & ~(SOCK_CLOEXEC | SOCK_NONBLOCK))
+ 		return -EINVAL;
+@@ -1818,6 +1820,7 @@ int __sys_connect(int fd, struct sockaddr __user *uservaddr, int addrlen)
+ 	struct socket *sock;
+ 	struct sockaddr_storage address;
+ 	int err, fput_needed;
++	printk(KERN_INFO "I found the connect implementation!\n");
+ 
+ 	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+ 	if (!sock)
