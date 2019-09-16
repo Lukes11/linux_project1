@@ -1,0 +1,26 @@
+diff --git a/kernel/Makefile b/kernel/Makefile
+index a8d923b5481b..142f0f274524 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -44,6 +44,9 @@ obj-y += rcu/
+ obj-y += livepatch/
+ obj-y += dma/
+ 
++#Project 1
++obj-y += encrypt.o
++
+ obj-$(CONFIG_CHECKPOINT_RESTORE) += kcmp.o
+ obj-$(CONFIG_FREEZER) += freezer.o
+ obj-$(CONFIG_PROFILING) += profile.o
+diff --git a/net/socket.c b/net/socket.c
+index 38eec1583f6d..628a544aad57 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1716,6 +1716,7 @@ int __sys_accept4(int fd, struct sockaddr __user *upeer_sockaddr,
+ 	int err, len, newfd, fput_needed;
+ 	struct sockaddr_storage address;
+ 
++
+ 	if (flags & ~(SOCK_CLOEXEC | SOCK_NONBLOCK))
+ 		return -EINVAL;
+ 
