@@ -1,0 +1,60 @@
+## [M1: point 1]
+#  Explain following in here
+#  ...
+# This line sets CUR_DIR as the current relative directory
+CUR_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+## [M2: point 1]
+#  Explain following in here
+#  ...
+# sets gcc as the compiler to be used
+# use the compile flags -g (Debugging), -02 (Increased optimization), -Werror (tread warnings as errors), and -Wall (turns on all warnings, even if trivial)
+CC = gcc
+CFLAGS += -g -O2 -Werror -Wall
+LDFLAGS +=
+
+## [M3: point 1]
+#  Explain following in here
+#  ...
+#sets the directory to compile dependancies, and sets flags for this dependicies to be compilied with
+DEPS_DIR  := $(CUR_DIR)/.deps$(LIB_SUFFIX)
+DEPCFLAGS = -MD -MF $(DEPS_DIR)/$*.d -MP
+
+## [M5: point 1]
+#  Explain following in here
+#  ...
+#sets the variable SRC_FILES as the source files to be used for compilation
+SRC_FILES = $(wildcard *.c)
+
+## [M6: point 1]
+#  Explain following in here
+#  ...
+#sets the variable EXE_FILES as the name of the generated executable
+EXE_FILES = $(SRC_FILES:.c=)
+
+## [M7: point 1]
+#  Explain following in here
+#  ...
+# begins building of the entire program to the executable EXE_FILES, and displays the names of the files 
+all: $(EXE_FILES)
+	echo $(EXE_FILES)
+
+## [M8: point 1]
+#  Explain following in here
+#  ...
+# compiles the dependancies with with the proper flags 
+%/%.c:%.c $(DEPS_DIR)
+	$(CC) $(CFLAGS) $(DEPCFLAGS) -c $@ $<
+
+## [M9: point 1]
+#  Explain following in here
+#  ...
+# clean will remove old executable files
+clean:
+	rm -f $(EXE_FILES)
+
+## [M10: point 1]
+#  Explain following in here
+#  ...
+# running make will execute all and clean
+.PHONY: all clean
